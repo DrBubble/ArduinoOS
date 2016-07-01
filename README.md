@@ -2,17 +2,17 @@
 ArduinoOS is an operating system for arduino which supports multithreading and hardware abstaction.
 ## Table of Contents
 1 [Setup](#id-Setup)<br>
-&nbsp;&nbsp;1 [Usage](#id-Usage)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1 [Basics](#id-Basics)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Sleep](#id-Sleep)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.2 [Create Thread](#id-Create-Thread)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.3 [Operating System uptime](#id-Operating-System-uptime)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.4 [Locks](#id-Locks)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2 [Advanced](#id-Advanced)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1 [Error handling](#id-Error-handling)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.1 [Kernel Panic](#id-Kernel-Panic)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free nemory](#id-Free-Memory)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free Stack](#id-Free-Stack)<br>
+1 [Usage](#id-Usage)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.1 [Basics](#id-Basics)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Sleep](#id-Sleep)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.2 [Create Thread](#id-Create-Thread)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.3 [Operating System uptime](#id-Operating-System-uptime)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.4 [Locks](#id-Locks)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.2 [Advanced](#id-Advanced)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1 [Error handling](#id-Error-handling)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.1 [Kernel Panic](#id-Kernel-Panic)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free nemory](#id-Free-Memory)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free Stack](#id-Free-Stack)<br>
 <div id='id-Setup'/>
 ## Setup
 + Download the latest release.
