@@ -58,7 +58,7 @@ sleep(milliseconds);
 Do not use ```delay``` since it does not allow the operating system to execute other tasks in the meanwhile and will block the thread for that time. That means ```delay(500)``` will block for 1 second if 2 Threads are running and for 2 seconds if 4 threads are running.
 <div id='id-Create-Thread'/>
 ####Create Thread
-With a ```InitTask ``` a new thread can be created.
+With ```InitTask ``` a new thread can be created.
 
 Example:
 ```c++
