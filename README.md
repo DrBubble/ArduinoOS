@@ -2,15 +2,17 @@
 ArduinoOS is an operating system for arduino which supports multithreading and hardware abstaction.
 ## Table of Contents
 1 [Setup](#id-Setup)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;1.1 [Usage](#id-Usage)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Basics](#id-Basics)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.1 [Sleep](#id-Sleep)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.2 [Create Thread](#id-Create-Thread)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.3 [Operating System uptime](#id-Operating-System- uptime)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.4 [Locks](#id-Locks)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.2 [Advanced](#id-Advanced)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.2.1 [Error handling](#id-Error-handling)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.2.1.1 [Kernel Panic](#id-Kernel-Panic)<br>
+&nbsp;&nbsp;1 [Usage](#id-Usage)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1 [Basics](#id-Basics)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Sleep](#id-Sleep)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.2 [Create Thread](#id-Create-Thread)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.3 [Operating System uptime](#id-Operating-System-uptime)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.4 [Locks](#id-Locks)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2 [Advanced](#id-Advanced)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1 [Error handling](#id-Error-handling)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.1 [Kernel Panic](#id-Kernel-Panic)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free nemory](#id-Free-Memory)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free Stack](#id-Free-Stack)<br>
 <div id='id-Setup'/>
 ## Setup
 + Download the latest release.
@@ -177,9 +179,11 @@ void thread()
 	while (true);
 }
 ````
-#####Free memory
+<div id='id-Free-Memory'/>
+#####Free Memory
 In order to require the free memory use the function ````freeMemory````.
-#####Free memory
+<div id='id-Free-Stack'/>
+#####Free Stack
 In order to require the free stack use the function ````freeStack````. Keep in mind that this function will require a bit of stack itself.
 ####Stack
 A Stack is a data type which allows putting (push) data on it and then take (pop) it from up to down. For more information see [Wikipedia](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). Various operatings like calling functions require space on the stack. ArduinoOS will reserve stack space for every thread. In order to influence the stack space use ```InitTaskWithStackSize``` or ```InitTaskWithStackSizeAndArgument``` when creating a new thread.
