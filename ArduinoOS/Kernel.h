@@ -85,8 +85,6 @@ extern const uint16_t STACK_SIZE_DEFAULT;
 
 struct task *InitTask(void(*workerFunction)());
 
-static void CallKernelInterrupt();
-
 #if defined FEATURE_THREAD_ARGUMENTS
 struct task *InitTaskWithArgument(void(*workerFunction)(void *arg), void *arg);
 #endif
@@ -105,9 +103,4 @@ void ReleaseLock(struct lock *lockObject);
 #endif
 int freeMemory();
 int freeStack();
-#if defined FEATURE_ATTACH_KERNE_INTERRUPT
-void AllocateInterruptStack(uint8_t stackSize);
-void FreeInterruptStack();
-void AttachKernelInterrupt(void(*kernelInterrupt)());
-#endif
 long unsigned getPastMilliseconds();
