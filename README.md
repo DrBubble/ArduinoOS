@@ -265,6 +265,8 @@ Supported hardware:
 
 Example:
 ```` c++
+#include "RgbLed.h"
+
 void mainThread()
 {
 	RgbLed led(10, 11, 12);   // Creates a new led with the pins 10 (red), 11 (green), 12 (blue)
