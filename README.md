@@ -14,6 +14,7 @@ ArduinoOS is an operating system for arduino which supports multithreading and h
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free nemory](#id-Free-Memory)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free Stack](#id-Free-Stack)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2 [Stack](#id-Stack)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2 [Thread Arguments](#id-Thread Arguments)
 <div id='id-Setup'/>
 ## Setup
 + Download the latest release.
@@ -23,7 +24,7 @@ ArduinoOS is an operating system for arduino which supports multithreading and h
   + Arduino Studio: Sketch -> Include Library -> ArduinoOS
 + Replace your main file with:
 ```c++
-#include "KernelInitializer.h"
+#include <KernelInitializer.h>
 
 void setup()
 {
@@ -219,4 +220,22 @@ The main thread gets a default stack size of STACK_SIZE_LARGE. It can passed as 
 Example:
 ```` c++
 KernelInitializer::InitializeKernel(mainThread, STACK_SIZE_MEDIUM);
+````
+<div id='id-Thread-Arguments'/>
+### Thread Arguments
+In order to pass an argument to a thread use ````InitTaskWithArgument```` or ````InitTaskWithStackSizeAndArgument````. The passed argument must be an void*.
+
+Example:
+```` c++
+void mainThread()
+{
+	String *argument = new String("Hello World!");
+	InitTaskWithArgument(thread2, argument);
+}
+
+void thread2(void* arg)
+{
+	String *argument = (String*)arg;
+	delete argument;
+}
 ````
