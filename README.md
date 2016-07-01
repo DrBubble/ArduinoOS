@@ -270,7 +270,7 @@ Supported hardware:
 
 Example:
 ```` c++
-#include "RgbLed.h"
+#include <RgbLed.h>
 
 void mainThread()
 {
