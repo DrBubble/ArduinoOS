@@ -120,6 +120,47 @@ Thread1
 Thread2
 ```
 ###Advanced
+####Error handling
+#####Kernel Panic
+In order to catch kernel errors there is the function ````OnKernelPanic````. When this function gets called a kernel panic happened. A kernel panic is like a bluescreen in windows. When this function gets called the operating system is in an unstable state and stops its exection in order to prevent damage. Do not call any ArduinoOS functions inside this functions. They will not work and their result will be unpredictable. You can use this function for example to notify the user about the error code (LED, Serial, ...) or to reset the arduino.
+
+Error codes:
+````
+KERNEL_ERROR_OUT_OF_STACK  = 1
+KERNEL_ERROR_OUT_OF_MEMORY = 2
+````
+
+Example:
+```` c++
+void HandleKernelPanic(uint8_t errorCode)
+{
+	// User defined code for error handling
+}
+
+void setup()
+{
+	OnKernelPanic = HandleKernelPanic;
+	KernelInitializer::InitializeKernel(mainThread);
+}
+
+void mainThread()
+{
+	// Provocates an out of memory error
+	while (true)
+	{
+		InitTask(thread);
+	}
+}
+
+void thread()
+{
+	while (true);
+}
+````
+#####Free memory
+In order to require the free memory use the function ````freeMemory````.
+#####Free memory
+In order to require the free stack use the function ````freeStack````. Keep in mind that this function will require a bit of stack itself.
 ####Stack
 A Stack is a data type which allows putting (push) data on it and then take (pop) it from up to down. For more information see [Wikipedia](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). Various operatings like calling functions require space on the stack. ArduinoOS will reserve stack space for every thread. In order to influence the stack space use ```InitTaskWithStackSize``` or ```InitTaskWithStackSizeAndArgument``` when creating a new thread.
 
