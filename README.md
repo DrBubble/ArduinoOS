@@ -248,7 +248,7 @@ void thread2(void* arg)
 ````
 <div id='id-Kernel-Tick-Period'/>
 ###Kernel Tick Period
-The kernel tick period defines how many ticks sould pass till a thread change gets initiated. 1000 ticks are 1 millisecond. So when the tick period is 1000 every millisecond a other thread gets executed. The default tick period is 2000. Keep in mind that [getPastMilliseconds](#id-Operating-System-uptime) will return a wrong value if you defined a tick period that is not divisible through 1000 (1 ms). This function is used by the kernel internal which also leads to inaccurate sleep periods. In order to set the tick period pass it as 3rd argument to ````KernelInitializer::InitializeKernel````.
+The kernel tick period defines how many ticks should pass till a thread change gets initiated. 1000 ticks are 1 millisecond. So when the tick period is 1000 every millisecond a other thread gets executed. The default tick period is 2000. Keep in mind that [getPastMilliseconds](#id-Operating-System-uptime) will return a wrong value if you defined a tick period that is not divisible through 1000 (1 ms). This function is used by the kernel internal which also leads to inaccurate sleep periods. In order to set the tick period pass it as 3rd argument to ````KernelInitializer::InitializeKernel````.
 
 Example:
 ```` c++
