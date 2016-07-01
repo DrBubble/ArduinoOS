@@ -4,8 +4,13 @@ ArduinoOS is an operating system for arduino which supports multithreading and h
 1 [Setup](#id-Setup)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.1 [Usage](#id-Usage)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Basics](#id-Basics)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.1 [Sleep](#id-Sleep)
-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.1 [Sleep](#id-Sleep)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.2 [Create Thread](#id-Create-Thread)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.3 [Operating System uptime](#id-Operating-System- uptime)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.4 [Locks](#id-Locks)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.2 [Advanced](#id-Advanced)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.1 [Error handling](#id-Error-handling)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1.1 [Kernel Panic](#id-Kernel-Panic)<br>
 <div id='id-Setup'/>
 ## Setup
 + Download the latest release.
@@ -40,6 +45,7 @@ In order to pause your programm you can use:
 sleep(milliseconds);
 ```
 Do not use ```delay``` since it does not allow the operating system to execute other tasks in the meanwhile and will block the thread for that time. That means ```delay(500)``` will block for 1 second if 2 Threads are running and for 2 seconds if 4 threads are running.
+<div id='id-Create-Thread'/>
 ####Create Thread
 With a ```InitTask ``` a new thread can be created.
 
@@ -55,8 +61,10 @@ void secondThread()
 
 }
 ```
+<div id='id-Operating-System-uptime/>
 ####Operating System uptime
 To get the uptime of the operating system you can use ```getPastMilliseconds```. Keep in mind that it will return a wrong value if you defined a kernel tick period that is not divisible through 1000 (1 ms).
+<div id='id-Locks'/>
 ####Locks
 In order to keep you application thread safe you can use locks. With locks you can prevent an other thread to access a variable, function, ... to be accessed in an unsafe state.
 
@@ -128,8 +136,11 @@ Thread2
 Thread1
 Thread2
 ```
+<div id='id-Advanced'/>
 ###Advanced
+<div id='id-Error-handling'/>
 ####Error handling
+<div id='id-Kernel Panic'/>
 #####Kernel Panic
 In order to catch kernel errors there is the function ````OnKernelPanic````. When this function gets called a kernel panic happened. A kernel panic is like a bluescreen in windows. When this function gets called the operating system is in an unstable state and stops its exection in order to prevent damage. Do not call any ArduinoOS functions inside this functions. They will not work and their result will be unpredictable. You can use this function for example to notify the user about the error code (LED, Serial, ...) or to reset the arduino.
 
