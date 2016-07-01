@@ -15,8 +15,8 @@ ArduinoOS is an operating system for arduino which supports multithreading and h
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.1.3 [Free Stack](#id-Free-Stack)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.2 [Stack](#id-Stack)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.3 [Thread Arguments](#id-Thread-Arguments)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.4 [Kernel Tick Period](#id-Kernel-Tick-Period)
-2 [Hardware abstraction](#id-Hardware-abstraction)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.4 [Kernel Tick Period](#id-Kernel-Tick-Period)<br>
+3 [Hardware abstraction](#id-Hardware-abstraction)<br>
 <div id='id-Setup'/>
 ## Setup
 + Download the latest release.
