@@ -40,7 +40,7 @@ void mainThread()
 + All code in the mainThread function will now be executed under the Operating System
 
 <div id='id-Usage'/>
-##Usage
+##OS-Usage
 <div id='id-Basics'/>
 ###Basics
 <div id='id-Sleep'/>
