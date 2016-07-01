@@ -12,9 +12,10 @@ ArduinoOS is an operating system for arduino which supports multithreading and h
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1 [Error handling](#id-Error-handling)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.1 [Kernel Panic](#id-Kernel-Panic)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free nemory](#id-Free-Memory)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.2 [Free Stack](#id-Free-Stack)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2 [Stack](#id-Stack)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2 [Thread Arguments](#id-Thread-Arguments)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.2.1.3 [Free Stack](#id-Free-Stack)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3 [Stack](#id-Stack)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.4 [Thread Arguments](#id-Thread-Arguments)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.5 [Kernel Tick Period](#id-Kernel-Tick-Period)
 <div id='id-Setup'/>
 ## Setup
 + Download the latest release.
@@ -67,7 +68,7 @@ void secondThread()
 ```
 <div id='id-Operating-System-uptime'/>
 ####Operating System uptime
-To get the uptime of the operating system you can use ```getPastMilliseconds```. Keep in mind that it will return a wrong value if you defined a kernel tick period that is not divisible through 1000 (1 ms).
+To get the uptime of the operating system you can use ```getPastMilliseconds```.
 <div id='id-Locks'/>
 ####Locks
 In order to keep you application thread safe you can use locks. With locks you can prevent an other thread to access a variable, function, ... to be accessed in an unsafe state.
@@ -237,5 +238,17 @@ void thread2(void* arg)
 {
 	String *argument = (String*)arg;
 	delete argument;
+}
+````
+<div id='id-Kernel-Tick-Period'/>
+###Kernel Tick Period
+The kernel tick period defines how many ticks sould pass till a thread change gets initiated. 1000 ticks are 1 millisecond. So when the tick period is 1000 every millisecond a other thread gets executed. The default tick period is 2000. Keep in mind that [getPastMilliseconds](#id-Operating-System-uptime) will return a wrong value if you defined a tick period that is not divisible through 1000 (1 ms). This function is used by the kernel internal which also leads to inaccurate sleep periods. In order to set the tick period pass it as 3rd argument to ````KernelInitializer::InitializeKernel````
+
+Example:
+```` c++
+void setup()
+{
+	OnKernelPanic = HandleKernelPanic;
+	KernelInitializer::InitializeKernel(mainThread, STACK_SIZE_LARGE, 2000l);
 }
 ````
