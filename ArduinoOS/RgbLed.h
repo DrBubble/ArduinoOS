@@ -16,6 +16,8 @@ private:
 	uint8_t blueValue;
 public:
 	bool IsOn();
+	void SetPins(uint8_t red, uint8_t green, uint8_t blue);
+	void SetPins(uint8_t red, uint8_t green, uint8_t blue, bool resetPinMode);
 	uint8_t GetRedPin();
 	void SetRedPin(uint8_t pin);
 	void SetRedPin(uint8_t pin, bool resetPinMode);
