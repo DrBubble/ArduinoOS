@@ -1,10 +1,9 @@
 # ArduinoOS
-O
 ArduinoOS is an operating system for arduino which supports multithreading and hardware abstaction.
 ## Table of Contents
-1. [Setup](#Setup)
-2. [Usage](#Usage)
-3. [Basics](#Basics)
+[Setup](#Setup)
+&nbsp;&nbsp;[Usage](#Usage)
+[Basics](#Basics)
 
 ## Setup
 + Download the latest release.
