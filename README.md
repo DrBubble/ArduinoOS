@@ -61,7 +61,7 @@ void secondThread()
 
 }
 ```
-<div id='id-Operating-System-uptime/>
+<div id='id-Operating-System-uptime'/>
 ####Operating System uptime
 To get the uptime of the operating system you can use ```getPastMilliseconds```. Keep in mind that it will return a wrong value if you defined a kernel tick period that is not divisible through 1000 (1 ms).
 <div id='id-Locks'/>
