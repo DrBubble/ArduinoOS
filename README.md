@@ -22,3 +22,26 @@ void mainThread()
 }
 ```
 + All code in the mainThread function will now be executed under the Operating System
+
+##Usage
+###Basics
+####Sleep
+In order to pause your programm you can use:
+```c++
+sleep(milliseconds);
+```
+Do not use ```delay``` since it does not allow the operating system to execute other tasks in the meanwhile and will block the thread for that time. That means ```delay(500)``` will block for 1 second if 2 Threads are running and for 2 seconds if 4 threads are running.
+####Create Thread
+With a ```InitTask ``` a new thread can be created.
+Example:
+```c++
+void mainThread()
+{
+	InitTask(secondThread);
+}
+
+void secondThread()
+{
+
+}
+```
