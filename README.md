@@ -248,7 +248,6 @@ Example:
 ```` c++
 void setup()
 {
-	OnKernelPanic = HandleKernelPanic;
 	KernelInitializer::InitializeKernel(mainThread, STACK_SIZE_LARGE, 2000l);
 }
 ````
