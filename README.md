@@ -16,6 +16,7 @@ ArduinoOS is an operating system for arduino which supports multithreading and h
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.2 [Stack](#id-Stack)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.3 [Thread Arguments](#id-Thread-Arguments)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.4 [Kernel Tick Period](#id-Kernel-Tick-Period)
+2 [Hardware abstraction](#id-Hardware-abstraction)<br>
 <div id='id-Setup'/>
 ## Setup
 + Download the latest release.
@@ -249,5 +250,30 @@ Example:
 void setup()
 {
 	KernelInitializer::InitializeKernel(mainThread, STACK_SIZE_LARGE, 2000l);
+}
+````
+<div id='id-Hardware-abstraction'/>
+##Hardware abstraction
+In order to make it easy to use different Hardware ArduinoOS offers different abstact classes for easy usage.
+Supported hardware:
++ LED
++ RGB-LED
++ Keypad
++ Motor
++ Piezo speaker
++ Servo
+
+Example:
+```` c++
+void mainThread()
+{
+	RgbLed led(10, 11, 12);   // Creates a new led with the pins 10 (red), 11 (green), 12 (blue)
+	led.SetRGB(50, 100, 255);
+	while (true)
+	{
+		led.TurnOn();
+		sleep(5000);
+		led.TurnOff();
+	}
 }
 ````
