@@ -190,13 +190,13 @@ void thread()
 ````
 <div id='id-Free-Memory'/>
 #####Free Memory
-In order to require the free memory use the function ````freeMemory````.
+In order to get the free memory use the function ````freeMemory````.
 <div id='id-Free-Stack'/>
 #####Free Stack
-In order to require the free stack use the function ````freeStack````. Keep in mind that this function will require a bit of stack itself.
+In order to get the free stack use the function ````freeStack````. Keep in mind that this function will require a bit of stack itself.
 <div id='id-Stack'/>
 ####Stack
-A Stack is a data type which allows putting (push) data on it and then take (pop) it from up to down. For more information see [Wikipedia](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). Various operations like calling functions require space on the stack. ArduinoOS will reserve stack space for every thread. In order to influence the stack space use ```InitTaskWithStackSize``` or ```InitTaskWithStackSizeAndArgument``` when creating a new thread.
+A Stack is a data type which allows putting (push) data on it and then take (pop) it from up to down. For more information see [Wikipedia](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). Various operations like calling functions require space on the stack. ArduinoOS will reserve stack space for every thread. In order to set the stack space use ```InitTaskWithStackSize``` or ```InitTaskWithStackSizeAndArgument``` when creating a new thread.
 
 Example:
 ``` c++
@@ -230,7 +230,7 @@ KernelInitializer::InitializeKernel(mainThread, STACK_SIZE_MEDIUM);
 ````
 <div id='id-Thread-Arguments'/>
 ### Thread Arguments
-In order to pass an argument to a thread use ````InitTaskWithArgument```` or ````InitTaskWithStackSizeAndArgument````. The passed argument must be an void*.
+In order to pass an argument to a thread use ````InitTaskWithArgument```` or ````InitTaskWithStackSizeAndArgument````. The passed argument must be of type void*.
 
 Example:
 ```` c++
@@ -259,7 +259,7 @@ void setup()
 ````
 <div id='id-Hardware-abstraction'/>
 ##Hardware abstraction
-In order to make it easy to use different Hardware ArduinoOS offers different abstact classes for easy usage.
+In order to make it easy to use different Hardware ArduinoOS offers different abstract classes for easy usage.
 Supported hardware:
 + LED
 + RGB-LED
