@@ -1,10 +1,12 @@
 # ArduinoOS
 ArduinoOS is an operating system for arduino which supports multithreading and hardware abstaction.
 ## Table of Contents
-[Setup](#Setup)
-&nbsp;&nbsp;[Usage](#Usage)
-[Basics](#Basics)
+1 [Setup](#id-Setup)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.1 [Usage](#id-Usage)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Basics](#id-Basics)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Sleep](#id-Sleep)
 
+<div id='id-Setup'/>
 ## Setup
 + Download the latest release.
 + Copy the ArduinoOS folder to Documents\Arduino\libraries
@@ -27,8 +29,11 @@ void mainThread()
 ```
 + All code in the mainThread function will now be executed under the Operating System
 
+<div id='id-Usage'/>
 ##Usage
+<div id='id-Basics'/>
 ###Basics
+<div id='id-Sleep'/>
 ####Sleep
 In order to pause your programm you can use:
 ```c++
