@@ -1,8 +1,8 @@
 # ArduinoOS
 ArduinoOS is an operating system for arduino which supports multithreading and hardware abstraction. ArduinoOS is optimized for minimal memory usage.
 
-Max Threads on device (1 System Thread):
-Arduino Uno: 20 Threads
+Max Threads on device (1 System Thread):<br>
+Arduino Uno: 20 Threads<br>
 Arduino Mega: 90 Threads
 
 ## Table of Contents
