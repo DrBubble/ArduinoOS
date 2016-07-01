@@ -6,6 +6,18 @@ bool RgbLed::IsOn()
 	return isOn;
 }
 
+void RgbLed::SetPins(uint8_t red, uint8_t green, uint8_t blue)
+{
+	SetPins(red, green, blue, true);
+}
+
+void RgbLed::SetPins(uint8_t red, uint8_t green, uint8_t blue, bool resetPinMode)
+{
+	SetRedPin(redPin, true);
+	SetGreenPin(greenPin, true);
+	SetBluePin(bluePin, true);
+}
+
 uint8_t RgbLed::GetRedPin()
 {
 	return redPin;
