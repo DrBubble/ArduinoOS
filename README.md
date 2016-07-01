@@ -148,7 +148,7 @@ Thread2
 ####Error handling
 <div id='id-Kernel-Panic'/>
 #####Kernel Panic
-In order to catch kernel errors there is the function ````OnKernelPanic````. When this function gets called a kernel panic happened. A kernel panic is like a bluescreen in windows. When this function gets called the operating system is in an unstable state and stops its execution in order to prevent damage. Do not call any ArduinoOS functions inside this function. They will not work and their result will be unpredictable. You can use this function for example to notify the user about the error code (LED, Serial, ...) or to reset the arduino.
+In order to catch kernel errors there is the function ````OnKernelPanic````. When this function gets called a kernel panic happened. A kernel panic is like a bluescreen in windows. When this function gets called the operating system is in an unstable state and stops its execution in order to prevent damage. Do not call any ArduinoOS functions inside this function. They will not work and their behavior is unpredictable. You can use this function for example to notify the user about the error code (LED, Serial, ...) or to reset the arduino.
 
 Error codes:
 ````
