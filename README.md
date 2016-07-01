@@ -3,8 +3,8 @@ ArduinoOS is an operating system for arduino which supports multithreading and h
 ## Table of Contents
 1 [Setup](#id-Setup)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.1 [Usage](#id-Usage)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Basics](#id-Basics)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Sleep](#id-Sleep)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Basics](#id-Basics)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.1.1 [Sleep](#id-Sleep)<br>
 
 <div id='id-Setup'/>
 ## Setup
