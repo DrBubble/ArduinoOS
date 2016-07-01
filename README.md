@@ -119,3 +119,30 @@ Thread2
 Thread1
 Thread2
 ```
+###Advanced
+####Stack
+A Stack is a data type which allows putting (push) data on it and then take (pop) it from up to down. For more information see [Wikipedia](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)). Various operatings like calling functions require space on the stack. ArduinoOS will reserve stack space for every thread. In order to influence the stack space use ```InitTaskWithStackSize``` or ```InitTaskWithStackSizeAndArgument``` when creating a new thread.
+
+Example:
+``` c++
+void mainThread()
+{
+	InitTaskWithStackSize(thread2, STACK_SIZE_LARGE);
+}
+
+void thread2()
+{
+
+}
+```
+
+The predefined stack size values are:
+```
+STACK_SIZE_TINY = 64 bytes
+STACK_SIZE_SMALL = 96 bytes
+STACK_SIZE_MEDIUM = 128 bytes
+STACK_SIZE_LARGE = 256 bytes
+STACK_SIZE_GIANT = 512 bytes
+STACK_SIZE_DEFAULT = 128 bytes
+```
+You can also pass you own stack size as an uint16_t. Keep on mind that this is not recommended for dying threads since the use of many different stack sizes can lead to stronger memory fragmentation. If a Thread with the stack size of 63 will be created 63 bytes of memory will be reserved. After that a second thread with 64 Bytes of reserved memory will be created. When the first thread gets destroyed 63 bytes of memory will be free before the second thread. If now a third thread with a stack size of 64 bytes will be created it can not be placed before the second thread since only 63 bytes of memory are free. So it will be placed after the second thread and will cause 63 bytes of memory to be wasted.
