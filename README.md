@@ -74,10 +74,10 @@ void secondThread()
 ```
 <div id='id-Operating-System-uptime'/>
 ####Operating System uptime
-To get the uptime of the operating system you can use ```getPastMilliseconds```.
+To get the uptime of the operating system use ```getPastMilliseconds```.
 <div id='id-Locks'/>
 ####Locks
-In order to keep you application thread safe you can use locks. With locks you can prevent an other thread to access a variable, function, ... in an unsafe state.
+In order to keep your application thread safe you can use locks. With locks you can prevent an other thread to access a variable, function, ... in an unsafe state.
 
 Example for conflicting threads:
 ``` c++
