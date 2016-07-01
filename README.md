@@ -107,13 +107,13 @@ eared1hrThd2adTh
 Tadea
 T
 ```
-This is because while one thread is writing into the serial it will be interrupted by the other thread. In order to prevent this you can use locks. With the method lock ```GetLockObject``` you can create a instance of a lock object.
+This is because while one thread is writing into the serial it will be interrupted by the other thread. In order to prevent this you can use locks. With the method ```GetLockObject``` you can create a instance of a lock object.
 
 Example:
 ``` c++
 lock *serialLock = GetLockObject();
 ```
-With ```AquireLock(serialLock)```` you can now lock the object. To release it use ````ReleaseLock(serialLock)````.
+With ```AquireLock(serialLock)``` you can now lock the object. To release it use ````ReleaseLock(serialLock)````.
 
 Example:
 ``` c++
