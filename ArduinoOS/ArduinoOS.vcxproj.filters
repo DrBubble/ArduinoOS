@@ -27,9 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="__vm\.Robot.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Kernel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -57,9 +54,6 @@
     <ClInclude Include="Led.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
-    <ClInclude Include="KeypadBase.h">
-      <Filter>Header Files\Hardware</Filter>
-    </ClInclude>
     <ClInclude Include="Keypad.h">
       <Filter>Header Files\Hardware</Filter>
     </ClInclude>
@@ -84,11 +78,11 @@
     <ClInclude Include="Key.h">
       <Filter>Header Files\Hardware\3rd Party</Filter>
     </ClInclude>
-    <ClInclude Include="__vm\.InternalRobothon.vsarduino.h">
+    <ClInclude Include="__vm\.ArduinoOS.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="__vm\.Robothon2016.vsarduino.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="KeypadBase.h">
+      <Filter>Header Files\Hardware\3rd Party</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +133,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Robothon2016.ino" />
+    <None Include="ArduinoOS.ino" />
   </ItemGroup>
 </Project>
