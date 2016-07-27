@@ -1,5 +1,5 @@
 # ArduinoOS
-ArduinoOS is an operating system for arduino which supports multithreading and hardware abstraction. The kernel of ArduinoOS is entirely written in C and optimized for minimal memory usage.
+ArduinoOS is an operating system for arduino which supports real multithreading, exceptions and hardware abstraction. The kernel of ArduinoOS is entirely written in C and optimized for minimal memory usage.
 
 Max Threads on device (1 System Thread):<br>
 Arduino Uno: 20 Threads<br>
@@ -13,6 +13,11 @@ Arduino Mega: 90 Threads
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.2 [Create Thread](#id-Create-Thread)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.3 [Operating System uptime](#id-Operating-System-uptime)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.4 [Locks](#id-Locks)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.5 [Exceptions](#id-Exceptions)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.5.1 [Throw](#id-Throw)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.5.2 [Try Catch](#id-Try-Catch)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.5.3 [Derivation](#id-Derivation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.5.4 [Exception Codes](#id-Exception-Codes)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;2.2 [Advanced](#id-Advanced)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.1 [Error handling](#id-Error-handling)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2.1.1 [Kernel Panic](#id-Kernel-Panic)<br>
@@ -147,6 +152,111 @@ Thread2
 Thread1
 Thread2
 ```
+<div id='id-Exceptions'/>
+####Exceptions
+In order to make error handling more easy you can use exceptions. ArduinoOS provides simple integer based exceptions. To save memory there is no such thing as an error message. Uncaught exceptions will result in a [KernelPanic](#id-Kernel-Panic) with the error ````KERNEL_ERROR_UNHANDLED_EXCEPTION````.
+<div id='id-Throw'/>
+#####Throw
+With ````throw```` a new exception can be thrown. This example throws an EXCEPTION_ILLEGAL_ARGUMENT_NULL. After the throw it will jump to the next catch that catches an exception of this type. If it does not get caught anywhere it will result in a [KernelPanic](#id-Kernel-Panic) with the error ````KERNEL_ERROR_UNHANDLED_EXCEPTION````.
+``` c++
+throw(EXCEPTION_ILLEGAL_ARGUMENT_NULL);
+````
+<div id='id-Try-Catch'/>
+#####Try Catch
+In order to catch exceptions use ````try```` and ````catch````. If an exception gets thrown inside the try block it will jump into the catch block. After the catch block ````clearException```` must be called. If you forget this there will be a syntax error.
+
+Example:
+```` c++
+try
+{
+	// Try code
+}
+catch
+{
+	// Error handling code
+}
+clearException();
+````
+It is important that ````return```` can <b>not</b> be called inside a try block or catch block. There is some stack memory to free after the try catch block. Usually this is done inside clearException(). When returning inside a try block or catch block this function will never be called. In order to still return use ````retex````.
+
+Example:
+```` c++
+try
+{
+	retex(someFunction()); // Save return
+}
+catch
+{
+	retex(-1); // Save return
+}
+clearException();
+````
+
+In order to catch exceptions of an specific type use ````catchType````.
+
+Example:
+```` c++
+try
+{
+	// Try code
+}
+catchType(EXCEPTION_ILLEGAL_ARGUMENT)
+{
+	// Handle exceptions of type ILLEGAL_ARGUMENT 
+}
+clearException();
+````
+
+<div id='id-Derivation'/>
+#####Derivation
+Derivation means that a exception can have child and parent exceptions. When a parent exception gets caught inside a ````catchType```` also it child exceptions will be. All exceptions are derived from ````EXCEPTION````. Derivation is achieved by ranges starting with 50. The <b>0</b> at the end says it is a parent exception of all exceptions that have some other numbers instead of the 0. For example 5<b>0</b> is the parent exception from all exceptions from 5<b>1</b> to 5<b>9</b>.
+
+Examples:
+<pre>
+0 (EXCEPTION) is the parent from all
+1-49 have no children
+5<b>0</b> is parent from 5<b>1</b> to 5<b>9</b>.
+1<b>00</b> is parent from 1<b>01</b> to 1<b>99</b>.
+1<b>000</b> is parent from 1<b>001</b> to 1<b>999</b>.
+127<b>0</b> is parent from 127<b>1</b> to 127<b>9</b>.
+</pre>
+
+<div id='id-Exception-Codes'/>
+#####Exception Codes
+<pre>
+EXCEPTION = 0
+EXCEPTION_OUT_OF_STACK = 1
+EXCEPTION_OUT_OF_MEMORY = 2
+
+EXCEPTION_NULL_POINTER = 10
+EXCEPTION_UNHANDLED_EXCEPTION = 11
+EXCEPTION_NOT_IMPLEMENTED = 12
+EXCEPTION_NOT_SUPORTED = 13
+EXCEPTION_INVALID_FORMAT = 14
+EXCEPTION_ACCES_VIOLATION = 15
+EXCEPTION_ACCES_TIMEOUT = 16
+EXCEPTION_INVALID_OPERATION_EXCEPTION = 50
+EXCEPTION_ARITHMETIC = 60
+EXCEPTION_ARITHMETIC_DIVIDE_BY_ZERO = 61
+EXCEPTION_BUFFER_OVERFLOW = 70
+EXCEPTION_INDEX_OUT_OF_RANGE = 71
+EXCEPTION_ASSERTION_ERROR = 80
+EXCEPTION_ILLEGAL_ARGUMENT = 90
+EXCEPTION_ILLEGAL_ARGUMENT_NULL = 91
+EXCEPTION_ILLEGAL_ARGUMENT_TO_BIG = 92
+EXCEPTION_ILLEGAL_ARGUMENT_TO_SMALL = 93
+EXCEPTION_ILLEGAL_ARGUMENT_OUT_OF_RANGE = 94
+EXCEPTION_ILLEGAL_ARGUMENT_FORMAT = 95
+EXCEPTION_IO = 110
+EXCEPTION_IO_EOF = 111
+EXCEPTION_IO_ACCESS_DENIED = 112
+EXCEPTION_IO_INVALID_DATA = 113
+EXCEPTION_IO_FILE_NOT_FOUND = 114
+EXCEPTION_IO_DIRECTORY_NOT_FOUND = 115
+EXCEPTION_NOT_UNIQUE = 120
+EXCEPTION_DUPLICATE_KEY = 121
+</pre>
+
 <div id='id-Advanced'/>
 ###Advanced
 <div id='id-Error-handling'/>
@@ -157,8 +267,9 @@ In order to catch kernel errors there is the function ````OnKernelPanic````. Whe
 
 Error codes:
 ````
-KERNEL_ERROR_OUT_OF_STACK  = 1
-KERNEL_ERROR_OUT_OF_MEMORY = 2
+KERNEL_ERROR_OUT_OF_STACK        = 1
+KERNEL_ERROR_OUT_OF_MEMORY       = 2
+KERNEL_ERROR_UNHANDLED_EXCEPTION = 3
 ````
 
 Example:

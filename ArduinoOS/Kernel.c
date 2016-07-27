@@ -2,11 +2,16 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stddef.h>
+#include <string.h> /* memset */
 #define LOW(w) ((uint8_t) ((w) & 0xff))
 #define HIGH(w) ((uint8_t) ((w) >> 8))
 #define COMBINE(high, low) (uint16_t)((((uint16_t)high) << 8) | ((uint16_t)low));
 #define	STACK_MEMORY_RANGE_IS_VALID(memoryRange) (memoryRange->start >= memoryRange->end)
+
+#ifdef FEATURE_EXCEPTIONS
+#define INVALID_EXCEPTION RAMEND
+#endif
 
 uint8_t statusRegister;
 
@@ -18,8 +23,6 @@ struct task *tasks;
 struct task *currentTask;
 struct task *previousTask;
 struct task *lastTask;
-
-
 struct task *idleTask;
 
 const uint16_t STACK_SIZE_TINY = 64;
@@ -52,7 +55,7 @@ void InitializeKernelState(unsigned long kernelTickPeriods)
 	lastTask = NULL;
 	previousTask = NULL;
 
-#if defined (__AVR_ATmega2560__)
+#if FUNCTION_POINTER_SIZE == 3
 	idleTask = InitTaskWithStackSizeAtomic(OS_IDLE, STACK_SIZE_SMALL);
 #else
 	idleTask = InitTaskWithStackSizeAtomic(OS_IDLE, STACK_SIZE_TINY);
@@ -63,9 +66,203 @@ void InitializeKernelState(unsigned long kernelTickPeriods)
 #endif
 }
 
+#define PUSH_CPU_STATE() \
+	__asm__ __volatile__(\
+		"push r0	\n"\
+		"in r0, __SREG__	\n"\
+		"cli		\n"\
+		"push r0	\n"\
+		"push r1	\n"\
+		"clr r1		\n"\
+		"push r2	\n"\
+		"push r3	\n"\
+		"push r4	\n"\
+		"push r5	\n"\
+		"push r6	\n"\
+		"push r7	\n"\
+		"push r8	\n"\
+		"push r9	\n"\
+		"push r10	\n"\
+		"push r11	\n"\
+		"push r12	\n"\
+		"push r13	\n"\
+		"push r14	\n"\
+		"push r15	\n"\
+		"push r16	\n"\
+		"push r17	\n"\
+		"push r18	\n"\
+		"push r19	\n"\
+		"push r20	\n"\
+		"push r21	\n"\
+		"push r22	\n"\
+		"push r23	\n"\
+		"push r24	\n"\
+		"push r25	\n"\
+		"push r26	\n"\
+		"push r27	\n"\
+		"push r28	\n"\
+		"push r29	\n"\
+		"push r30	\n"\
+		"push r31	\n"\
+	)
+
+#define POP_CPU_STATE() \
+	__asm__ __volatile__(\
+		"pop r31	\n"\
+		"pop r30	\n"\
+		"pop r29	\n"\
+		"pop r28	\n"\
+		"pop r27	\n"\
+		"pop r26	\n"\
+		"pop r25	\n"\
+		"pop r24	\n"\
+		"pop r23	\n"\
+		"pop r22	\n"\
+		"pop r21	\n"\
+		"pop r20	\n"\
+		"pop r19	\n"\
+		"pop r18	\n"\
+		"pop r17	\n"\
+		"pop r16	\n"\
+		"pop r15	\n"\
+		"pop r14	\n"\
+		"pop r13	\n"\
+		"pop r12	\n"\
+		"pop r11	\n"\
+		"pop r10	\n"\
+		"pop r9 	\n"\
+		"pop r8	    \n"\
+		"pop r7	    \n"\
+		"pop r6	    \n"\
+		"pop r5	    \n"\
+		"pop r4	    \n"\
+		"pop r3 	\n"\
+		"pop r2 	\n"\
+		"pop r1	    \n"\
+		"pop r0 	\n"\
+		"out __SREG__, r0\n"\
+		"pop r0	\n"\
+	)
+
+#define SAVE_CPU_STATE() \
+	PUSH_CPU_STATE();\
+	STORE_STACK_POINTER(esp)
+
+#define RESTORE_CPU_STATE() \
+	__asm__ __volatile__(\
+		"out __SP_L__, %A0	\n"\
+		"out __SP_H__, %B0	\n"\
+		:: "r" (esp)\
+	);\
+	POP_CPU_STATE()
+
+#define STORE_STACK_POINTER(target)\
+	__asm__ __volatile__(\
+		"in r24, __SP_L__	\n"\
+		"in r25, __SP_H__	\n"\
+		"sts " #target "+1, r25	\n"\
+		"sts " #target ", r24	\n"\
+		::: "r24", "r25"\
+	)
+
+#define SET_STACK_POINTER(stackPointer)\
+	__asm__ __volatile__(\
+		"OUT __SP_L__, %A0\n"\
+		"OUT __SP_H__, %B0\n"\
+		:: "r" (stackPointer)\
+	)
+
+#define INC_STACK() \
+	__asm__ __volatile__(\
+		"push r24"\
+	)
+
+#define DEC_STACK() \
+	__asm__ __volatile__(\
+		"pop r24"\
+		::: "r24"\
+	)
+
+#define POP_STORE_8(target)\
+	__asm__ __volatile__(\
+		"pop r24		\n"\
+		"sts " #target ", r24	\n"\
+		::: "r24"\
+	)
+
+#define POP_STORE_16(target)\
+	__asm__ __volatile__(\
+		"pop r24		\n"\
+		"sts " #target "+1, r24	\n"\
+		"pop r24		\n"\
+		"sts " #target ", r24	\n"\
+		::: "r24"\
+	)
+
+#define POP_STORE_24(target)\
+	__asm__ __volatile__(\
+		"pop r24		\n"\
+		"sts " #target "+2, r24	\n"\
+		"pop r24		\n"\
+		"sts " #target "+1, r24	\n"\
+		"pop r24		\n"\
+		"sts " #target ", r24	\n"\
+		::: "r24"\
+	)
+
+#define PUSH_STORE_16(target)\
+	__asm__ __volatile__(\
+		"push r24		\n"\
+		"push r25		\n"\
+		:: "r" (target)\
+	)
+
+
+#if FUNCTION_POINTER_SIZE == 3
+#define PUSH_FUNCTION_POINTER(functionPointer)\
+	__asm__ __volatile__(\
+		"mov r0, %A0	\n"\
+		"push r0		\n"\
+		"mov r0, %B0	\n"\
+		"push r0		\n"\
+		"mov r0, %C0	\n"\
+		"push r0		\n"\
+		:: "r" ((FUNCTION_POINTER)functionPointer)\
+	)
+#else
+#define PUSH_FUNCTION_POINTER(functionPointer)\
+	__asm__ __volatile__(\
+		"mov r0, %A0	\n"\
+		"push r0		\n"\
+		"mov r0, %B0	\n"\
+		"push r0		\n"\
+		:: "r" ((FUNCTION_POINTER)functionPointer)\
+	)
+#endif
+
+
+#if FUNCTION_POINTER_SIZE == 3
+#define POP_FUNCTION_POINTER(functionPointer)\
+	POP_STORE_24(functionPointer)
+#else
+#define POP_FUNCTION_POINTER(functionPointer)\
+	POP_STORE_16(functionPointer)
+#endif
+
+#if FUNCTION_POINTER_SIZE == 3
+#define STACK_REMOVE_FUNCTION_POINTER()\
+	DEC_STACK();\
+	DEC_STACK();\
+	DEC_STACK()
+#else
+#define STACK_REMOVE_FUNCTION_POINTER()\
+	DEC_STACK();\
+	DEC_STACK()
+#endif
 
 void SwitchContext(bool calledFromInterrupt)
 {
+	// Clearing the mess the compiler makes because he thinks he has to save this registers
 	__asm__ __volatile__("cli\n mov r24, r28\n"
 		"pop r28	\n"
 		"pop r15	\n"
@@ -78,65 +275,10 @@ void SwitchContext(bool calledFromInterrupt)
 		"pop r8	\n"
 		);
 
-	//__asm__ __volatile__("cli\n mov r24, r17\n"
-	//					 "pop r29	\n"
-	//					 "pop r28	\n"
-	//					 "pop r17	\n"
-	//					 "pop r15	\n"
-	//					 "pop r14	\n"
-	//					 "pop r13	\n"
-	//					 "pop r12	\n"
-	//					 "pop r11	\n"
-	//					 "pop r10	\n"
-	//					 "pop r9	\n"
-	//					 "pop r8	\n"
-	//					 );
-
-	__asm__ __volatile__(
-		"push r0	\n"
-		"in r0, __SREG__	\n"
-		"cli		\n"
-		"push r0	\n"
-		"push r1	\n"
-		"clr r1		\n"
-		"push r2	\n"
-		"push r3	\n"
-		"push r4	\n"
-		"push r5	\n"
-		"push r6	\n"
-		"push r7	\n"
-		"push r8	\n"
-		"push r9	\n"
-		"push r10	\n"
-		"push r11	\n"
-		"push r12	\n"
-		"push r13	\n"
-		"push r14	\n"
-		"push r15	\n"
-		"push r16	\n"
-		"push r17	\n"
-		"push r18	\n"
-		"push r19	\n"
-		"push r20	\n"
-		"push r21	\n"
-		"push r22	\n"
-		"push r23	\n"
-		"push r24	\n"
-		"push r25	\n"
-		"push r26	\n"
-		"push r27	\n"
-		"push r28	\n"
-		"push r29	\n"
-		"push r30	\n"
-		"push r31	\n"
-		"in r26, __SP_L__	\n"
-		"in r27, __SP_H__	\n"
-		"sts esp+1, r27	\n"
-		"sts esp, r26	\n"
-		);
+	SAVE_CPU_STATE();
 
 #if defined FEATURE_ERROR_DETECTION
-	if (freeMemory() <= 20)
+	if (freeMemory() <= 30)
 	{
 		KernelPanic(KERNEL_ERROR_OUT_OF_MEMORY);
 	}
@@ -239,11 +381,7 @@ void SwitchContext(bool calledFromInterrupt)
 			}
 
 			//Set Stack for new Task
-			__asm__ __volatile__(
-				"OUT __SP_L__, %A0\n"
-				"OUT __SP_H__, %B0\n"
-				:: "r" (esp)
-				);
+			SET_STACK_POINTER(esp);
 			currentTask->esp = esp;
 
 #if defined FEATURE_ERROR_DETECTION
@@ -252,68 +390,14 @@ void SwitchContext(bool calledFromInterrupt)
 #endif
 
 			//Push return address on Stack
-#if defined (__AVR_ATmega2560__)
-			__asm__ __volatile__(
-				"mov r0, %A0	\n"
-				"push r0		\n"
-				"mov r0, %B0	\n"
-				"push r0		\n"
-				"mov r0, %C0	\n"
-				"push r0		\n"
-				:: "r" ((unsigned long)TaskExecutionWrapper)
-				);
-#else
-			__asm__ __volatile__(
-				"mov r0, %A0	\n"
-				"push r0		\n"
-				"mov r0, %B0	\n"
-				"push r0		\n"
-				:: "r" (TaskExecutionWrapper)
-				);
-#endif
+			PUSH_FUNCTION_POINTER(TaskExecutionWrapper);
 		}
 		else
 		{
 			esp = currentTask->esp;
+
 			//Restore Task
-			__asm__ __volatile__(\
-				"out __SP_L__, %A0	\n"\
-				"out __SP_H__, %B0	\n"\
-				"pop r31	\n"\
-				"pop r30	\n"\
-				"pop r29	\n"\
-				"pop r28	\n"\
-				"pop r27	\n"\
-				"pop r26	\n"\
-				"pop r25	\n"\
-				"pop r24	\n"\
-				"pop r23	\n"\
-				"pop r22	\n"\
-				"pop r21	\n"\
-				"pop r20	\n"\
-				"pop r19	\n"\
-				"pop r18	\n"\
-				"pop r17	\n"\
-				"pop r16	\n"\
-				"pop r15	\n"\
-				"pop r14	\n"\
-				"pop r13	\n"\
-				"pop r12	\n"\
-				"pop r11	\n"\
-				"pop r10	\n"\
-				"pop r9 	\n"\
-				"pop r8	    \n"\
-				"pop r7	    \n"\
-				"pop r6	    \n"\
-				"pop r5	    \n"\
-				"pop r4	    \n"\
-				"pop r3 	\n"\
-				"pop r2 	\n"\
-				"pop r1	    \n"\
-				"pop r0 	\n"\
-				"out __SREG__, r0\n"\
-				"pop r0	\n"\
-				:: "r" (esp));
+			RESTORE_CPU_STATE();
 		}
 
 	}
@@ -323,44 +407,7 @@ void SwitchContext(bool calledFromInterrupt)
 		{
 			pastMilliseconds += tickPeriods / 1000;
 		}
-		__asm__ __volatile__(\
-			"out __SP_L__, %A0	\n"\
-			"out __SP_H__, %B0	\n"\
-			"pop r31	\n"\
-			"pop r30	\n"\
-			"pop r29	\n"\
-			"pop r28	\n"\
-			"pop r27	\n"\
-			"pop r26	\n"\
-			"pop r25	\n"\
-			"pop r24	\n"\
-			"pop r23	\n"\
-			"pop r22	\n"\
-			"pop r21	\n"\
-			"pop r20	\n"\
-			"pop r19	\n"\
-			"pop r18	\n"\
-			"pop r17	\n"\
-			"pop r16	\n"\
-			"pop r15	\n"\
-			"pop r14	\n"\
-			"pop r13	\n"\
-			"pop r12	\n"\
-			"pop r11	\n"\
-			"pop r10	\n"\
-			"pop r9 	\n"\
-			"pop r8	    \n"\
-			"pop r7	    \n"\
-			"pop r6	    \n"\
-			"pop r5	    \n"\
-			"pop r4	    \n"\
-			"pop r3 	\n"\
-			"pop r2 	\n"\
-			"pop r1	    \n"\
-			"pop r0 	\n"\
-			"out __SREG__, r0\n"\
-			"pop r0	\n"\
-			:: "r" (esp));
+		RESTORE_CPU_STATE();
 	}
 	sei();
 	if (calledFromInterrupt)
@@ -617,11 +664,7 @@ static void KernelPanic(uint8_t errorCode)
 	}
 	sei();
 	memset((void*)esp, 0, RAMEND - esp);
-	__asm__ __volatile__(
-		"OUT __SP_L__, %A0\n"
-		"OUT __SP_H__, %B0\n"
-		:: "r" (RAMEND)
-		);
+	SET_STACK_POINTER(RAMEND);
 	if (OnKernelPanic != NULL)
 	{
 		OnKernelPanic(errorCode);
@@ -656,16 +699,10 @@ int freeStack()
 
 	uint16_t stackPointer;
 	cli();
-	__asm__ __volatile__(
-		"in r26, __SP_L__	\n"
-		"in r27, __SP_H__	\n"
-		"sts freeStackStackPointer+1, r27	\n"
-		"sts freeStackStackPointer, r26	\n"
-		::: "r26", "r27");
+	STORE_STACK_POINTER(freeStackStackPointer);
 	stackPointer = freeStackStackPointer;
 	sei();
 
-	//return stackPointer;
 	return stackPointer - currentTask->memoryRange->end;
 }
 
@@ -673,3 +710,143 @@ long unsigned getPastMilliseconds()
 {
 	return pastMilliseconds;
 }
+
+#ifdef FEATURE_EXCEPTIONS
+volatile uint16_t exceptionThrowEsp;
+
+void ThrowException(uint16_t exception)
+{
+	cli();
+	if (currentTask->exceptionThrowEsp == 0)
+	{
+		KernelPanic(KERNEL_ERROR_UNHANDLED_EXCEPTION);
+	}
+	if (exception == 0)
+	{
+		exception = INVALID_EXCEPTION;
+	}
+	currentTask->exception = exception;
+
+	// Remove return address from stack
+	STACK_REMOVE_FUNCTION_POINTER();
+
+	SET_STACK_POINTER(currentTask->exceptionThrowEsp);
+	__asm__ __volatile__(
+		"pop r24		\n"
+		"sts exceptionThrowEsp+1, r24	\n"
+		"pop r24		\n"
+		"sts exceptionThrowEsp, r24	\n"
+		::: "r24"
+	);
+	currentTask->exceptionThrowEsp = exceptionThrowEsp;
+
+	POP_CPU_STATE();
+	sei();
+}
+
+volatile FUNCTION_POINTER catchAddress;
+void RegisterTry()
+{
+	cli();
+
+	// Storing return address
+#if FUNCTION_POINTER_SIZE == 3
+	__asm__ __volatile__(
+		"pop r24			\n"
+		"pop r25			\n"
+		"pop r26			\n"
+		"sts catchAddress, r26		\n"
+		"sts catchAddress+1, r25	\n"
+		"sts catchAddress+2, r24	\n"
+		"push r26			\n"
+		"push r25			\n"
+		"push r24			\n"
+		::: "r24", "r25", "r26"
+	);
+#else
+	__asm__ __volatile__(
+		"pop r24			\n"
+		"pop r25			\n"
+		"sts catchAddress, r25		\n"
+		"sts catchAddress+1, r24	\n"
+		"push r25			\n"
+		"push r24			\n"
+		::: "r24", "r25"
+	);
+#endif
+
+	// Saving cpu state
+	PUSH_CPU_STATE();
+
+	PUSH_STORE_16(currentTask->exceptionThrowEsp);
+	STORE_STACK_POINTER(exceptionThrowEsp);
+	currentTask->exceptionThrowEsp = exceptionThrowEsp;
+
+	// Putting return address on stack
+	PUSH_FUNCTION_POINTER(catchAddress);
+
+	sei();
+}
+
+volatile FUNCTION_POINTER retAddress;
+void ClearTry()
+{
+	cli();
+
+	if (!HasException())
+	{
+		POP_FUNCTION_POINTER(retAddress);
+		POP_STORE_16(exceptionThrowEsp);
+		currentTask->exceptionThrowEsp = exceptionThrowEsp;
+
+		POP_CPU_STATE();
+		STACK_REMOVE_FUNCTION_POINTER();
+
+		PUSH_FUNCTION_POINTER(retAddress);
+	}
+	currentTask->exception = 0;
+	sei();
+}
+
+bool HasException()
+{
+	return currentTask->exception != 0;
+}
+
+uint16_t GetException()
+{
+	if (currentTask->exception == INVALID_EXCEPTION)
+	{
+		return 0;
+	}
+	return currentTask->exception;
+}
+
+
+bool IsBaseException(uint16_t baseException, uint16_t exception)
+{
+	if (baseException == EXCEPTION || baseException == exception)
+	{
+		return true;
+	}
+	if (baseException < 50 || baseException % 10 != 0)
+	{
+		return false;
+	}
+	if (baseException % 1000 == 0)
+	{
+		int16_t diff = exception - baseException;
+		return diff >= 0 && diff < 1000;
+	}
+	else if (baseException % 100 == 0)
+	{
+		int16_t diff = exception - baseException;
+		return diff >= 0 && diff < 100;
+	}
+	else
+	{
+		int16_t diff = exception - baseException;
+		return diff >= 0 && diff < 10;
+	}
+}
+#endif // FEATURE_EXCEPTIONS
