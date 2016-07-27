@@ -5,6 +5,61 @@ Max Threads on device (1 System Thread):<br>
 Arduino Uno: 20 Threads<br>
 Arduino Mega: 90 Threads
 
+Example:
+```` c++
+#include "KernelInitializer.h"
+
+lock *serialLock = GetLockObject();
+
+void setup()
+{
+	Serial.begin(9600);
+	KernelInitializer::InitializeKernel(mainThread);
+}
+
+void mainThread()
+{
+	InitTask(secondThread);
+	InitTaskWithStackSize(wastingCpuThread, STACK_SIZE_TINY);
+	while (true)
+	{
+		try
+		{
+			throw(EXCEPTION_ILLEGAL_ARGUMENT_NULL);
+		}
+		catch
+		{
+			AquireLock(serialLock);
+			Serial.println("There was an Exception!");
+			Serial.print("Error code: ");
+			Serial.println(GetException());
+			ReleaseLock(serialLock);
+		}
+		clearException();
+		sleep(1000);
+	}
+}
+
+void secondThread()
+{
+	while (true)
+	{
+		AquireLock(serialLock);
+		Serial.println("Spam!");
+		ReleaseLock(serialLock);
+		sleep(1000);
+	}
+}
+
+void wastingCpuThread()
+{
+	while (true)
+	{
+		// Nothing
+	}
+}
+````
+
 ## Table of Contents
 1 [Setup](#id-Setup)<br>
 2 [OS-Usage](#id-Usage)<br>
