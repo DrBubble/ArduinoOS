@@ -177,6 +177,12 @@ With ```AquireLock(serialLock)``` you can now lock the object. To release it use
 
 Example:
 ``` c++
+void setup()
+{
+	Serial.begin(9600);
+	KernelInitializer::InitializeKernel(mainThread);
+}
+
 lock *serialLock = GetLockObject();
 
 void mainThread()
