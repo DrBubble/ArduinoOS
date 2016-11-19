@@ -260,22 +260,41 @@ void InitializeKernelState(unsigned long kernelTickPeriods)
 	DEC_STACK()
 #endif
 
-void SwitchContext(bool calledFromInterrupt)
+volatile bool ___calledFromInterrupt;
+void SwitchContext()
 {
 	// Clearing the mess the compiler makes because he thinks he has to save this registers
-	__asm__ __volatile__("cli\n mov r24, r28\n"
+	//__asm__ __volatile__("cli\n mov r24, r28\n"
+	//	"pop r28	\n"
+	//	"pop r15	\n"
+	//	"pop r14	\n"
+	//	"pop r13	\n"
+	//	"pop r12	\n"
+	//	"pop r11	\n"
+	//	"pop r10	\n"
+	//	"pop r9	\n"
+	//	"pop r8	\n"
+
+
+	//	/*"lds	r8, 0x02AB\n"
+	//	"in     0x02AB, r8"*/
+	//	);
+
+	__asm__ __volatile__(
+		"cli		\n"
+		"pop r29	\n"
 		"pop r28	\n"
 		"pop r15	\n"
 		"pop r14	\n"
 		"pop r13	\n"
 		"pop r12	\n"
-		"pop r11	\n"
-		"pop r10	\n"
-		"pop r9	\n"
-		"pop r8	\n"
 		);
 
+
+
+
 	SAVE_CPU_STATE();
+	
 
 #if defined FEATURE_ERROR_DETECTION
 	if (freeMemory() <= 30)
@@ -287,7 +306,7 @@ void SwitchContext(bool calledFromInterrupt)
 	{
 		statusRegister = SREG;
 
-		if (calledFromInterrupt)
+		if (___calledFromInterrupt)
 		{
 			pastMilliseconds += tickPeriods / 1000;
 		}
@@ -403,14 +422,14 @@ void SwitchContext(bool calledFromInterrupt)
 	}
 	else
 	{
-		if (calledFromInterrupt)
+		if (___calledFromInterrupt)
 		{
 			pastMilliseconds += tickPeriods / 1000;
 		}
 		RESTORE_CPU_STATE();
 	}
 	sei();
-	if (calledFromInterrupt)
+	if (___calledFromInterrupt)
 	{
 		asm("reti");
 	}
@@ -439,7 +458,8 @@ static void TaskExecutionWrapper()
 #endif
 	FinalizeCurrentTask();
 	cli();
-	SwitchContext(false);
+	___calledFromInterrupt = false;
+	SwitchContext();
 	OS_IDLE();
 }
 
@@ -457,7 +477,8 @@ struct task *InitTaskWithStackSize(void(*workerFunction)(), uint16_t stackSize)
 	sleep(0);
 #else
 	cli();
-	SwitchContext(false);
+	___calledFromInterrupt = false;
+	SwitchContext();
 #endif
 	return createdTask;
 }
@@ -605,13 +626,15 @@ void sleep(unsigned long milliseconds)
 	if (milliseconds == 0)
 	{
 		cli();
-		SwitchContext(false);
+		___calledFromInterrupt = false;
+		SwitchContext();
 	}
 	else
 	{
-		//cli();
+		cli();
 		currentTask->presumeOn = pastMilliseconds + milliseconds;
-		SwitchContext(false);
+		___calledFromInterrupt = false;
+		SwitchContext();
 		//while (currentTask->presumeOn != 0);
 	}
 }
@@ -630,14 +653,16 @@ void AquireLock(struct lock *lockObject)
 	while (true)
 	{
 		cli();
-		if (!lockObject->isLocked)
+		if (lockObject->lockCount == 0 || lockObject->lockingTask == currentTask)
 		{
-			lockObject->isLocked = true;
+			lockObject->lockCount++;
+			lockObject->lockingTask = currentTask;
 			return;
 		}
 		else
 		{
-			SwitchContext(false);
+			___calledFromInterrupt = false;
+			SwitchContext();
 		}
 		sei();
 	}
@@ -646,7 +671,10 @@ void AquireLock(struct lock *lockObject)
 void ReleaseLock(struct lock *lockObject)
 {
 	cli();
-	lockObject->isLocked = false;
+	if(lockObject->lockCount != 0 && lockObject->lockingTask == currentTask)
+	{
+		lockObject->lockCount--;
+	}
 	sei();
 }
 #endif

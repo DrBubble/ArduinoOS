@@ -18,10 +18,12 @@ void KernelInitializer::InitializeKernel(void(*mainFunction)(), uint16_t stackSi
 	Timer1.initialize(contextSwitchInterval);
 	InitTaskWithStackSizeAtomic(mainFunction, stackSize);
 	Timer1.attachInterrupt(HandleKernelInterrupt);
-	SwitchContext(false);
+	___calledFromInterrupt = false;
+	SwitchContext();
 }
 
 void KernelInitializer::HandleKernelInterrupt()
 {
-	SwitchContext(true);
+	___calledFromInterrupt = true;
+	SwitchContext();
 }

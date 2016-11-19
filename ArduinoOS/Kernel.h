@@ -52,13 +52,15 @@ struct memory_range {
 
 #if defined FEATURE_LOCK
 struct lock {
-	bool isLocked;
+	uint8_t lockCount;
+	struct task *lockingTask;
 };
 #endif
 
 void OS_IDLE();
 void InitializeKernelState(unsigned long tickPeriods);
-void SwitchContext(bool calledFromInterrupt);
+extern volatile bool ___calledFromInterrupt;
+void SwitchContext();
 
 #ifdef FEATURE_ERROR_DETECTION
 #pragma GCC diagnostic ignored "-Wunused-function"
