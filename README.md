@@ -447,6 +447,7 @@ void mainThread()
 		led.TurnOn();
 		sleep(5000);
 		led.TurnOff();
+		sleep(5000);
 	}
 }
 ````
