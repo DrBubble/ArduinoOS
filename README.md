@@ -1,5 +1,5 @@
 # ArduinoOS
-ArduinoOS is an operating system for arduino which supports real multithreading, exceptions and hardware abstraction. The kernel of ArduinoOS is entirely written in C and optimized for minimal memory usage.
+ArduinoOS is an operating system for arduino which supports real multithreading, exceptions and hardware abstraction. The kernel of ArduinoOS is entirely written in assembly and C and optimized for minimal memory usage.
 
 Max Threads on device (1 System Thread):<br>
 Arduino Uno: 20 Threads<br>
