@@ -233,7 +233,7 @@ throw(EXCEPTION_ILLEGAL_ARGUMENT_NULL);
 ````
 <div id='id-Try-Catch'/>
 
-#####Try Catch
+##### Try Catch
 In order to catch exceptions use ````try```` and ````catch````. If an exception gets thrown inside the try block it will jump into the catch block. After the catch block ````clearException```` must be called. If you forget this there will be a syntax error.
 
 Example:
@@ -450,6 +450,7 @@ void setup()
 }
 ````
 <div id='id-Hardware-abstraction'/>
+
 ## Hardware abstraction
 In order to make it easy to use different Hardware ArduinoOS offers different abstract classes for easy usage.
 Supported hardware:
