@@ -13,50 +13,50 @@ lock *serialLock = GetLockObject();
 
 void setup()
 {
-	Serial.begin(9600);
-	KernelInitializer::InitializeKernel(mainThread);
+    Serial.begin(9600);
+    KernelInitializer::InitializeKernel(mainThread);
 }
 
 void mainThread()
 {
-	InitTask(secondThread);
-	InitTaskWithStackSize(wastingCpuThread, STACK_SIZE_TINY);
-	while (true)
-	{
-		try
-		{
-			throw(EXCEPTION_ILLEGAL_ARGUMENT_NULL);
-		}
-		catch
-		{
-			AquireLock(serialLock);
-			Serial.println("There was an Exception!");
-			Serial.print("Error code: ");
-			Serial.println(GetException());
-			ReleaseLock(serialLock);
-		}
-		clearException();
-		sleep(1000);
-	}
+    InitTask(secondThread);
+    InitTaskWithStackSize(wastingCpuThread, STACK_SIZE_TINY);
+    while (true)
+    {
+        try
+        {
+            throw(EXCEPTION_ILLEGAL_ARGUMENT_NULL);
+        }
+        catch
+        {
+            AquireLock(serialLock);
+            Serial.println("There was an Exception!");
+            Serial.print("Error code: ");
+            Serial.println(GetException());
+            ReleaseLock(serialLock);
+        }
+        clearException();
+        sleep(1000);
+    }
 }
 
 void secondThread()
 {
-	while (true)
-	{
-		AquireLock(serialLock);
-		Serial.println("Spam!");
-		ReleaseLock(serialLock);
-		sleep(1000);
-	}
+    while (true)
+    {
+        AquireLock(serialLock);
+        Serial.println("Spam!");
+        ReleaseLock(serialLock);
+        sleep(1000);
+    }
 }
 
 void wastingCpuThread()
 {
-	while (true)
-	{
-		// Nothing
-	}
+    while (true)
+    {
+        // Nothing
+    }
 }
 ````
 
@@ -96,7 +96,7 @@ void wastingCpuThread()
 
 void setup()
 {
-	KernelInitializer::InitializeKernel(mainThread);
+    KernelInitializer::InitializeKernel(mainThread);
 }
 
 void mainThread()
@@ -129,7 +129,7 @@ Example:
 ```c++
 void mainThread()
 {
-	InitTask(secondThread);
+    InitTask(secondThread);
 }
 
 void secondThread()
@@ -150,19 +150,19 @@ Example for conflicting threads:
 ``` c++
 void mainThread()
 {
-	InitTask(thread2);
-	while (true)
-	{
-		Serial.println("Thread1");
-	}
+    InitTask(thread2);
+    while (true)
+    {
+        Serial.println("Thread1");
+    }
 }
 
 void thread2()
 {
-	while (true)
-	{
-		Serial.println("Thread2");
-	}
+    while (true)
+    {
+        Serial.println("Thread2");
+    }
 }
 ```
 If you execute this code you will notice that it will output something strange like:
@@ -186,31 +186,31 @@ Example:
 ``` c++
 void setup()
 {
-	Serial.begin(9600);
-	KernelInitializer::InitializeKernel(mainThread);
+    Serial.begin(9600);
+    KernelInitializer::InitializeKernel(mainThread);
 }
 
 lock *serialLock = GetLockObject();
 
 void mainThread()
 {
-	InitTask(thread2);
-	while (true)
-	{
-		AquireLock(serialLock);
-		Serial.println("Thread1");
-		ReleaseLock(serialLock);
-	}
+    InitTask(thread2);
+    while (true)
+    {
+        AquireLock(serialLock);
+        Serial.println("Thread1");
+        ReleaseLock(serialLock);
+    }
 }
 
 void thread2()
 {
-	while (true)
-	{
-		AquireLock(serialLock);
-		Serial.println("Thread2");
-		ReleaseLock(serialLock);
-	}
+    while (true)
+    {
+        AquireLock(serialLock);
+        Serial.println("Thread2");
+        ReleaseLock(serialLock);
+    }
 }
 ```
 The output will now be like expected:
@@ -240,11 +240,11 @@ Example:
 ```` c++
 try
 {
-	// Try code
+    // Try code
 }
 catch
 {
-	// Error handling code
+    // Error handling code
 }
 clearException();
 ````
@@ -254,11 +254,11 @@ Example:
 ```` c++
 try
 {
-	retex(someFunction()); // Save return
+    retex(someFunction()); // Save return
 }
 catch
 {
-	retex(-1); // Save return
+    retex(-1); // Save return
 }
 clearException();
 ````
@@ -269,11 +269,11 @@ Example:
 ```` c++
 try
 {
-	// Try code
+    // Try code
 }
 catchType(EXCEPTION_ILLEGAL_ARGUMENT)
 {
-	// Handle exceptions of type ILLEGAL_ARGUMENT 
+    // Handle exceptions of type ILLEGAL_ARGUMENT 
 }
 clearException();
 ````
@@ -352,27 +352,27 @@ Example:
 ```` c++
 void HandleKernelPanic(uint8_t errorCode)
 {
-	// User defined code for error handling
+    // User defined code for error handling
 }
 
 void setup()
 {
-	OnKernelPanic = HandleKernelPanic;
-	KernelInitializer::InitializeKernel(mainThread);
+    OnKernelPanic = HandleKernelPanic;
+    KernelInitializer::InitializeKernel(mainThread);
 }
 
 void mainThread()
 {
-	// Provocates an out of memory error
-	while (true)
-	{
-		InitTask(thread);
-	}
+    // Provocates an out of memory error
+    while (true)
+    {
+        InitTask(thread);
+    }
 }
 
 void thread()
 {
-	while (true);
+    while (true);
 }
 ````
 <div id='id-Free-Memory'/>
@@ -392,7 +392,7 @@ Example:
 ``` c++
 void mainThread()
 {
-	InitTaskWithStackSize(thread2, STACK_SIZE_LARGE);
+    InitTaskWithStackSize(thread2, STACK_SIZE_LARGE);
 }
 
 void thread2()
@@ -427,14 +427,14 @@ Example:
 ```` c++
 void mainThread()
 {
-	String *argument = new String("Hello World!");
-	InitTaskWithArgument(thread2, argument);
+    String *argument = new String("Hello World!");
+    InitTaskWithArgument(thread2, argument);
 }
 
 void thread2(void* arg)
 {
-	String *argument = (String*)arg;
-	delete argument;
+    String *argument = (String*)arg;
+    delete argument;
 }
 ````
 <div id='id-Kernel-Tick-Period'/>
@@ -446,7 +446,7 @@ Example:
 ```` c++
 void setup()
 {
-	KernelInitializer::InitializeKernel(mainThread, STACK_SIZE_LARGE, 2000l);
+    KernelInitializer::InitializeKernel(mainThread, STACK_SIZE_LARGE, 2000l);
 }
 ````
 <div id='id-Hardware-abstraction'/>
@@ -467,14 +467,14 @@ Example:
 
 void mainThread()
 {
-	RgbLed led(10, 11, 12);   // Creates a new led with the pins 10 (red), 11 (green), 12 (blue)
-	led.SetRGB(50, 100, 255);
-	while (true)
-	{
-		led.TurnOn();
-		sleep(5000);
-		led.TurnOff();
-		sleep(5000);
-	}
+    RgbLed led(10, 11, 12);   // Creates a new led with the pins 10 (red), 11 (green), 12 (blue)
+    led.SetRGB(50, 100, 255);
+    while (true)
+    {
+        led.TurnOn();
+        sleep(5000);
+        led.TurnOff();
+        sleep(5000);
+    }
 }
 ````
