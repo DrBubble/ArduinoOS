@@ -9,7 +9,7 @@ void KernelInitializer::InitializeKernel(void(*mainFunction)())
 
 void KernelInitializer::InitializeKernel(void(*mainFunction)(), uint16_t stackSize)
 {
-	InitializeKernel(mainFunction, stackSize, 2 * 1000l);
+	InitializeKernel(mainFunction, stackSize, 2000l);
 }
 
 void KernelInitializer::InitializeKernel(void(*mainFunction)(), uint16_t stackSize, long contextSwitchInterval)

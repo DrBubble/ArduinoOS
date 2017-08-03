@@ -24,6 +24,8 @@ No Features:  97 Threads
 
 // System functions, do not use without in depth knowledge
 extern void(*OnKernelPanic)(uint8_t);
+extern struct task *currentTask;
+extern volatile bool ___calledFromInterrupt;
 
 struct task {
 	struct task			*next;			// 0-1
@@ -59,8 +61,6 @@ struct lock {
 
 void OS_IDLE();
 void InitializeKernelState(unsigned long tickPeriods);
-extern volatile bool ___calledFromInterrupt;
-void SwitchContext();
 
 #ifdef FEATURE_ERROR_DETECTION
 #pragma GCC diagnostic ignored "-Wunused-function"
@@ -106,8 +106,10 @@ struct task *InitTaskWithStackSize(void(*workerFunction)(), uint16_t stackSize);
 #ifdef FEATURE_THREAD_ARGUMENTS
 struct task *InitTaskWithStackSizeAndArgument(void(*workerFunction)(void *arg), uint16_t stackSize, void *arg);
 #endif
+void SwitchContext();
 #ifdef FEATURE_SLEEP
 void sleep(unsigned long milliseconds);
+void sleepTicks(unsigned long ticks);
 #endif
 #ifdef FEATURE_LOCK
 struct lock *GetLockObject();
@@ -116,7 +118,8 @@ void ReleaseLock(struct lock *lockObject);
 #endif
 int freeMemory();
 int freeStack();
-long unsigned getPastMilliseconds();
+long unsigned getElapsedMilliseconds();
+long unsigned getElapsedTicks();
 
 #ifdef FEATURE_EXCEPTIONS
 #define USER_EXCEPTIONS_BEGIN 1000
