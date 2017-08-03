@@ -13,7 +13,7 @@
 #define INVALID_EXCEPTION RAMEND
 #endif
 
-uint8_t statusRegister;
+//uint8_t statusRegister;
 
 #if defined FEATURE_ERROR_DETECTION
 void(*OnKernelPanic)(uint8_t);
@@ -35,7 +35,7 @@ const uint16_t STACK_SIZE_DEFAULT = 128;
 volatile uint16_t esp;
 
 volatile unsigned long tickPeriods;
-volatile unsigned long pastMilliseconds = 0;
+volatile unsigned long ticksExpired = 0;
 
 volatile bool ignoreNextEip = false;
 
@@ -70,10 +70,8 @@ void InitializeKernelState(unsigned long kernelTickPeriods)
 	__asm__ __volatile__(\
 		"push r0	\n"\
 		"in r0, __SREG__	\n"\
-		"cli		\n"\
 		"push r0	\n"\
 		"push r1	\n"\
-		"clr r1		\n"\
 		"push r2	\n"\
 		"push r3	\n"\
 		"push r4	\n"\
@@ -260,41 +258,21 @@ void InitializeKernelState(unsigned long kernelTickPeriods)
 	DEC_STACK()
 #endif
 
+#define InitContextSwitch()\
+	__asm__ __volatile__(\
+	"call switch_context"\
+)
+
 volatile bool ___calledFromInterrupt;
-void SwitchContext()
+
+volatile void SwitchContextInternal()
 {
-	// Clearing the mess the compiler makes because he thinks he has to save this registers
-	//__asm__ __volatile__("cli\n mov r24, r28\n"
-	//	"pop r28	\n"
-	//	"pop r15	\n"
-	//	"pop r14	\n"
-	//	"pop r13	\n"
-	//	"pop r12	\n"
-	//	"pop r11	\n"
-	//	"pop r10	\n"
-	//	"pop r9	\n"
-	//	"pop r8	\n"
-
-
-	//	/*"lds	r8, 0x02AB\n"
-	//	"in     0x02AB, r8"*/
-	//	);
-
 	__asm__ __volatile__(
-		"cli		\n"
-		"pop r29	\n"
-		"pop r28	\n"
-		"pop r15	\n"
-		"pop r14	\n"
-		"pop r13	\n"
-		"pop r12	\n"
-		);
+		"switch_context:"
+	);
 
-
-
-
+	cli();
 	SAVE_CPU_STATE();
-	
 
 #if defined FEATURE_ERROR_DETECTION
 	if (freeMemory() <= 30)
@@ -304,20 +282,21 @@ void SwitchContext()
 #endif
 	if (tasks != NULL)
 	{
-		statusRegister = SREG;
-
 		if (___calledFromInterrupt)
 		{
-			pastMilliseconds += tickPeriods / 1000;
+			ticksExpired += tickPeriods;
+			//DecreaseTasksTime();
 		}
+
 		if (!ignoreNextEip)
 		{
 			if (currentTask != NULL)
 			{
+				//STORE_STACK_POINTER(esp);
 				currentTask->esp = esp;
 
 #if defined FEATURE_ERROR_DETECTION
-				if (STACK_MEMORY_RANGE_IS_VALID(currentTask->memoryRange))
+				if (STACK_MEMORY_RANGE_IS_VALID(currentTask->memoryRange) && currentTask != idleTask)
 				{
 					if (esp > currentTask->memoryRange->start || esp < currentTask->memoryRange->end)
 					{
@@ -338,7 +317,6 @@ void SwitchContext()
 		}
 
 		struct task *startTask = NULL;
-
 		while (true)
 		{
 			if (currentTask == NULL || currentTask->next == NULL)
@@ -358,14 +336,13 @@ void SwitchContext()
 			}
 
 #if defined FEATURE_SLEEP
-			if (currentTask->presumeOn <= pastMilliseconds) {
+			if (currentTask->presumeOn <= ticksExpired) {
 				currentTask->presumeOn = 0;
 				break;
 			}
 #else
 			break;
 #endif
-
 
 			if (currentTask == startTask)
 			{
@@ -390,15 +367,15 @@ void SwitchContext()
 			}
 			else
 			{
-				if (lastTask != NULL && STACK_MEMORY_RANGE_IS_VALID(lastTask->memoryRange)) {
+				/*if (lastTask != NULL && STACK_MEMORY_RANGE_IS_VALID(lastTask->memoryRange))
+				{
 					esp = lastTask->memoryRange->end - 1;
 				}
 
 				currentTask->memoryRange->end = esp - currentTask->memoryRange->start + 1;
-				currentTask->memoryRange->start = esp;
-
+				currentTask->memoryRange->start OnKernelPanic= esp;*/
+				KernelPanic(12);
 			}
-
 			//Set Stack for new Task
 			SET_STACK_POINTER(esp);
 			currentTask->esp = esp;
@@ -407,9 +384,9 @@ void SwitchContext()
 			uint8_t *stackEnd = (uint8_t *)currentTask->memoryRange->end;
 			*stackEnd = STACK_CHECKING_NUMBER;
 #endif
-
 			//Push return address on Stack
 			PUSH_FUNCTION_POINTER(TaskExecutionWrapper);
+			asm("reti");
 		}
 		else
 		{
@@ -417,24 +394,12 @@ void SwitchContext()
 
 			//Restore Task
 			RESTORE_CPU_STATE();
+			asm("reti");
 		}
 
 	}
-	else
-	{
-		if (___calledFromInterrupt)
-		{
-			pastMilliseconds += tickPeriods / 1000;
-		}
-		RESTORE_CPU_STATE();
-	}
-	sei();
-	if (___calledFromInterrupt)
-	{
-		asm("reti");
-	}
 
-	asm("ret");
+	KernelPanic(0); // Should never be reached
 }
 
 
@@ -459,7 +424,7 @@ static void TaskExecutionWrapper()
 	FinalizeCurrentTask();
 	cli();
 	___calledFromInterrupt = false;
-	SwitchContext();
+	InitContextSwitch();
 	OS_IDLE();
 }
 
@@ -473,13 +438,9 @@ struct task *InitTaskWithStackSize(void(*workerFunction)(), uint16_t stackSize)
 	cli();
 	struct task *createdTask = InitTaskWithStackSizeAtomic(workerFunction, stackSize);
 	sei();
-#if defined FEATURE_SLEEP
-	sleep(0);
-#else
 	cli();
 	___calledFromInterrupt = false;
-	SwitchContext();
-#endif
+	InitContextSwitch();
 	return createdTask;
 }
 
@@ -493,7 +454,7 @@ struct task *InitTaskWithStackSizeAtomic(void(*workerFunction)(), uint16_t stack
 	task->presumeOn = 0;
 #endif
 	struct task** memoryInsertParentTask = malloc(sizeof(struct task*));
-	struct task** memoryInsertNextTask = malloc(sizeof(struct task*));;
+	struct task** memoryInsertNextTask = malloc(sizeof(struct task*));
 	task->memoryRange = ReserveStackMemory(stackSize, memoryInsertParentTask, memoryInsertNextTask);
 
 	if (*memoryInsertNextTask != NULL)
@@ -552,8 +513,8 @@ struct memory_range *ReserveStackMemory(uint16_t reservedStackSize, struct task*
 {
 	struct memory_range *memoryRange = malloc(sizeof(struct memory_range));
 	memset(memoryRange, 0, sizeof(struct memory_range));
-	memoryRange->start = reservedStackSize;
-	memoryRange->end = reservedStackSize + 1;
+	memoryRange->start = RAMEND;
+	memoryRange->end = memoryRange->start - reservedStackSize;
 	*insertIntoNextTask = NULL;
 
 	struct memory_range *previousValidMemoryRange = NULL;
@@ -598,7 +559,7 @@ void FinalizeCurrentTask()
 	sei();
 }
 
-void OS_IDLE() {
+volatile void OS_IDLE() {
 	while (1);
 }
 
@@ -623,19 +584,34 @@ void loop() {
 #if defined FEATURE_SLEEP
 void sleep(unsigned long milliseconds)
 {
-	if (milliseconds == 0)
+	sleepTicks(milliseconds * 1000);
+}
+
+void sleepTicks(unsigned long ticks)
+{
+	if (ticks == 0)
 	{
 		cli();
 		___calledFromInterrupt = false;
-		SwitchContext();
+		//while (currentTask->remainingIdleTime != 0);
+		InitContextSwitch();
+		sei();
 	}
 	else
 	{
 		cli();
-		currentTask->presumeOn = pastMilliseconds + milliseconds;
 		___calledFromInterrupt = false;
-		SwitchContext();
-		//while (currentTask->presumeOn != 0);
+		if (ticks < tickPeriods)
+		{
+			currentTask->presumeOn = ticksExpired + tickPeriods;
+		}
+		else
+		{
+			currentTask->presumeOn = ticksExpired + ticks;
+		}
+		InitContextSwitch();
+		sei();
+		//while (currentTask->remainingIdleTime != 0);
 	}
 }
 #endif
@@ -662,7 +638,7 @@ void AquireLock(struct lock *lockObject)
 		else
 		{
 			___calledFromInterrupt = false;
-			SwitchContext();
+			InitContextSwitch();
 		}
 		sei();
 	}
@@ -683,16 +659,8 @@ void ReleaseLock(struct lock *lockObject)
 static void KernelPanic(uint8_t errorCode)
 {
 	TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12)); //Detaches interrupt
-	struct task *nextTask = tasks;
-	while (nextTask != NULL)
-	{
-		nextTask = nextTask->next;
-		free(nextTask->memoryRange);
-		free(nextTask);
-	}
+	SET_STACK_POINTER(RAMEND); // Setting stack pointer to the end
 	sei();
-	memset((void*)esp, 0, RAMEND - esp);
-	SET_STACK_POINTER(RAMEND);
 	if (OnKernelPanic != NULL)
 	{
 		OnKernelPanic(errorCode);
@@ -734,9 +702,14 @@ int freeStack()
 	return stackPointer - currentTask->memoryRange->end;
 }
 
-long unsigned getPastMilliseconds()
+long unsigned getElapsedMilliseconds()
 {
-	return pastMilliseconds;
+	return ticksExpired / 1000;
+}
+
+long unsigned getElapsedTicks()
+{
+	return ticksExpired;
 }
 
 #ifdef FEATURE_EXCEPTIONS
@@ -878,3 +851,10 @@ bool IsBaseException(uint16_t baseException, uint16_t exception)
 	}
 }
 #endif // FEATURE_EXCEPTIONS
+
+void SwitchContext()
+{
+	cli();
+	InitContextSwitch();
+	sei();
+}
